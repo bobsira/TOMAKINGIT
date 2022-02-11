@@ -286,8 +286,11 @@ public class code {
         return false;
     }
     static int bestBridge(char[][] grid) {
-
-        Set<String> mainIsland = new HashSet<>();
+        // find one of the island
+        // BFS towards the other island
+        // count the distance
+        // profit
+        Set<String> mainIsland = new HashSet<>(); // a set containing all positions of the main island
         for (int row = 0; row < grid.length; row++){
             for (int column = 0; column < grid[0].length; column++ ){
                 Set<String> possibleIsland = traverseIsland(grid, row, column, new HashSet<>());
@@ -343,17 +346,43 @@ public class code {
         boolean columnInbounds = 0 <= column && row < grid[0].length;
         return rowInbounds && columnInbounds;
     }
+    static boolean hasCycle(Map<Integer, List<Integer>> graph){
+        // white-grey-black cycle detection algorithm
+        Set<Integer> visiting = new HashSet<>();
+        Set<Integer> visited = new HashSet<>();
+        for (int node : graph.keySet()) {
+            if (cycleDetect(graph, node, visiting, visited))
+                return true;
+        }
+        return false;
+    }
+    static boolean cycleDetect(Map<Integer, List<Integer>> graph, int node, Set<Integer> visiting, Set<Integer> visited){
+        if (visited.contains(node)) return false;
+        if (visiting.contains(node)) return true;
+        visiting.add(node);
+        for(int neighbor : graph.get(node)){
+            if (cycleDetect(graph, neighbor, visiting, visited))
+                return true;
+        }
+        visiting.remove(node);
+        visited.add(node);
+        return false;
+    }
     static List<Integer> topologicalOrder(Map<Integer, List<Integer>> graph){
         // track nodes and number of unvisited parents
+        // node : parent count initialized to 0 i.e all nodes start with zero parents
         Map<Integer, Integer> numParents = new HashMap<>();
         for (Integer node : graph.keySet()){
             numParents.put(node, 0);
         }
+
         for(Integer node : graph.keySet()){
-            for (Integer neighborNode : graph.get(node))
+            // iterate through all the childrent that this node points to
+            for (Integer neighborNode : graph.get(node)) // increment the number of parent for the child
                 numParents.put(neighborNode, numParents.getOrDefault(neighborNode, 0) + 1);
         }
 
+        // initialize ready list with all the nodes that have no parent to begin with
         List<Integer> ready = new ArrayList<>();
         for (Integer node : numParents.keySet()){
             if (numParents.get(node) == 0) {
@@ -374,8 +403,71 @@ public class code {
 
         return order;
     }
-
-
+    static String safeCracking(int[][] hints){
+        Map<Integer, List<Integer>> graph = buidGraph(hints);
+        return topologicalOrderI(graph);
+    }
+    static String topologicalOrderI(Map<Integer, List<Integer>>  graph){
+        Map<Integer, Integer> numParents = new HashMap<>();
+        for (int node : graph.keySet()) numParents.put(node, 0);
+        for (int node : graph.keySet()){
+            for (int neighbor : graph.get(node)){
+                numParents.put(neighbor, numParents.getOrDefault(neighbor, 0) + 1);
+            }
+        }
+        List<Integer> ready = new ArrayList<>();
+        for (int node : numParents.keySet()){
+            if (numParents.get(node) == 0) ready.add(node);
+        }
+        StringBuilder order = new StringBuilder();
+        while (ready.size() > 0) {
+            int currentNode = ready.remove(ready.size() - 1);
+            order.append(currentNode);
+            for (int neiggborNode : graph.get(currentNode)) {
+                numParents.put(neiggborNode, numParents.getOrDefault(neiggborNode, 0) - 1);
+                if (numParents.get(neiggborNode) == 0) ready.add(neiggborNode);
+            }
+        }
+        return order.toString();
+    }
+    static Map<Integer, List<Integer>> buidGraph(int[][] hints){
+        Map<Integer, List<Integer>> graph = new HashMap<>();
+        for (int[] hint : hints){
+            int source = hint[0];
+            int destination = hint[1];
+            if (!graph.containsKey(source)) graph.put(source, new ArrayList<>());
+            if (!graph.containsKey(destination)) graph.put(destination, new ArrayList<>());
+            graph.get(source).add(destination);
+        }
+        return graph;
+    }
+    static boolean exist(char[][] board, String word) {
+        for (int row = 0; row < board.length; row++){
+            for (int column = 0; column < board[0].length; column++){
+                if (exploreWord(board, word, row, column, 0))
+                    return true;
+            }
+        }
+        return false;
+    }
+    static boolean exploreWord(char[][] board, String word, int row, int column, int index){
+        if(index >= word.length()) return true;
+        if(word.length() == 0) return true;
+        boolean rowInbounds = 0 <= row && row < board.length;
+        boolean columnInbounds = 0 <= column && column < board[0].length;
+        if (!rowInbounds || !columnInbounds) return false;
+        if(board[row][column] != word.charAt(index)) return false;
+        char temp = board[row][column];
+        // use this instead of visited set to reduce complexity
+        board[row][column] = '#';
+        boolean result = (exploreWord(board, word, row + 1, column, index + 1) ||
+                exploreWord(board, word, row - 1, column, index + 1) ||
+                exploreWord(board, word, row , column + 1, index + 1) ||
+                exploreWord(board, word, row , column - 1, index + 1)
+        );
+        board[row][column] = temp;
+        return result;
+    }
     static int[][] floodFill(int[][] image, int sr, int sc, int newColor) {
         int currentColor = image[sr][sc];
         if(currentColor != newColor)
@@ -392,35 +484,6 @@ public class code {
             fillImage(image, row + 1, column, oldColor, newColor);
             fillImage(image, row, column + 1, oldColor, newColor);
         }
-    }
-    boolean exist(char[][] board, String word) {
-        Set<String> visited = new HashSet<>();
-        for (int row = 0; row < board.length; row++){
-            for (int column = 0; column < board[0].length; column++){
-                if (word.charAt(0) == board[row][column] && exploreWord(board, word, visited, row, column, 0))
-                    return true;
-            }
-        }
-        return false;
-    }
-    boolean exploreWord(char[][] board, String word, Set<String> visited, int row, int column, int index){
-        if (index >= word.length()) return true;
-        boolean rowInbounds = 0 <= row && row < board.length;
-        boolean columnInbounds = 0 <= column && column < board[0].length;
-        if (!rowInbounds || !columnInbounds) return false;
-        if(board[row][column] != word.charAt(index)) return false;
-        String position = row + "," + column;
-        if(visited.contains(position)) return false;
-        char temp = board[row][column];
-        visited.add(position);
-        if(
-                exploreWord(board, word, visited, row + 1, column, index + 1) ||
-                        exploreWord(board, word, visited, row - 1, column, index + 1) ||
-                        exploreWord(board, word, visited, row , column + 1, index + 1) ||
-                        exploreWord(board, word, visited, row , column - 1, index + 1)
-        ) return true;
-        visited.remove(position);
-        return false;
     }
 
     public static void main(String[] args) {
