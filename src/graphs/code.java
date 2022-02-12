@@ -369,20 +369,52 @@ public class code {
         return false;
     }
     static List<Integer> topologicalOrder(Map<Integer, List<Integer>> graph){
-        // track nodes and number of unvisited parents
-        // node : parent count initialized to 0 i.e all nodes start with zero parents
+        // RECORD IN-DEGREE OF EACH VERTEX
+        // track nodes and number of unvisited parents ; node : parent count initialized to 0 i.e all nodes start with zero parents
         Map<Integer, Integer> numParents = new HashMap<>();
         for (Integer node : graph.keySet()){
             numParents.put(node, 0);
         }
-
         for(Integer node : graph.keySet()){
             // iterate through all the childrent that this node points to
             for (Integer neighborNode : graph.get(node)) // increment the number of parent for the child
                 numParents.put(neighborNode, numParents.getOrDefault(neighborNode, 0) + 1);
         }
 
+        // ADD ALL VERTICES WITH 0 IN-DEGREE TO THE QUEUE
         // initialize ready list with all the nodes that have no parent to begin with
+        List<Integer> ready = new ArrayList<>();
+        for (Integer node : numParents.keySet()){
+            if (numParents.get(node) == 0) {
+                ready.add(node);
+            }
+        }
+
+        List<Integer> order = new ArrayList<>();
+        // Process until the Q becomes empty
+        while (ready.size() > 0) {
+            int currentNode = ready.remove(ready.size() - 1);
+            order.add(currentNode);
+            // Reduce the in-degree of each neighbor by 1
+            for(Integer neighborNode : graph.get(currentNode) ) {
+                numParents.put(neighborNode, numParents.getOrDefault(neighborNode, 0) - 1);
+                // If in-degree of a neighbor becomes 0, add it to the Q
+                if (numParents.get(neighborNode) == 0)
+                    ready.add(neighborNode);
+            }
+        }
+
+        return order;
+    }
+    public int[] findOrder(int numCourses, int[][] prerequisites) {
+        Map<Integer, List<Integer>> graph = buildGraphI(numCourses, prerequisites);
+        Map<Integer, Integer> numParents = new HashMap<>();
+        for (Integer node : graph.keySet()) numParents.put(node, 0);
+        for(Integer node : graph.keySet()){
+            for (Integer neighborNode : graph.get(node))
+                numParents.put(neighborNode, numParents.getOrDefault(neighborNode, 0) + 1);
+        }
+
         List<Integer> ready = new ArrayList<>();
         for (Integer node : numParents.keySet()){
             if (numParents.get(node) == 0) {
@@ -401,7 +433,19 @@ public class code {
             }
         }
 
-        return order;
+        if(order.size() == numCourses) return order.stream().mapToInt(i -> i).toArray();
+
+        return new int[0];
+    }
+    static Map<Integer, List<Integer>> buildGraphI(int numCourses, int[][] prereqs){
+        Map<Integer, List<Integer>>  graph = new HashMap<>();
+        for (int i = 0; i < numCourses; i++) graph.put(i, new ArrayList<>());
+        for (int[] prereq : prereqs) {
+            int destination = prereq[0];
+            int source = prereq[1];
+            graph.get(source).add(destination);
+        }
+        return graph;
     }
     static String safeCracking(int[][] hints){
         Map<Integer, List<Integer>> graph = buidGraph(hints);
@@ -440,6 +484,13 @@ public class code {
             graph.get(source).add(destination);
         }
         return graph;
+    }
+    static List<String> findWords(char[][] board, String[] words) {
+        List<String> result = new ArrayList<>();
+        for(String word: words){
+            if(exist(board, word)) result.add(word);
+        }
+        return result;
     }
     static boolean exist(char[][] board, String word) {
         for (int row = 0; row < board.length; row++){
@@ -484,6 +535,42 @@ public class code {
             fillImage(image, row + 1, column, oldColor, newColor);
             fillImage(image, row, column + 1, oldColor, newColor);
         }
+    }
+    static int ladderLength(String beginWord, String endWord, List<String> wordList) {
+        Queue<String> queue = new LinkedList<>();
+        Set<String> words = new HashSet<>(wordList);
+        words.remove(beginWord);
+        queue.add(beginWord);
+        int level = 0;
+        while(!queue.isEmpty()){
+            int size = queue.size();
+            level++;
+            for(int i = 0; i < size; i++){
+                String currentWord = queue.poll();
+                if(currentWord.equals(endWord)) return level;
+                List<String> neighbors = generateNeighbors(currentWord);
+                for(String neighbor : neighbors){
+                    if(words.contains(neighbor)){
+                        words.remove(neighbor);
+                        queue.add(neighbor);
+                    }
+                }
+            }
+        }
+        return 0;
+    }
+    static List<String> generateNeighbors(String s){
+        List<String> result = new ArrayList<>();
+        char[] chars = s.toCharArray();
+        for (int i = 0; i < chars.length; i++){
+            char temp = chars[i];
+            for (char c = 'a'; c <= 'z'; c++){
+                chars[i] = c;
+                String neighbor = new String(chars);
+                result.add(neighbor);
+            }
+        }
+        return result;
     }
 
     public static void main(String[] args) {
