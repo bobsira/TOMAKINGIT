@@ -23,7 +23,6 @@ public class code {
             maximumLength = right - left - 1;
         }
     }
-
     int longestCommonSubsequence(String text1, String text2) {
         int[][] dp = new int[text1.length() + 1][text2.length() + 1];
         for(int col = text2.length() - 1; col >= 0; col--){
@@ -35,7 +34,6 @@ public class code {
         }
         return dp[0][0];
     }
-
      int longestPalindromeSubsequence(String s) {
         int[][] dp = new int[s.length() + 1][s.length() + 1];
         String t = new StringBuilder(s).reverse().toString();
@@ -76,16 +74,71 @@ public class code {
         return memo.get(i);
     }
 
+    public int fibonacci(int n) {
+        Map<Integer, Integer> memo = new HashMap<Integer, Integer>();
+        return dp(memo, n);
+    }
+    public int dp(Map<Integer, Integer> memo, int i){
+        if(i == 0) return 0;
+        if(i == 1) return 1;
+        if(memo.containsKey(i)) return memo.get(i);
+        memo.put(i, dp(memo, i - 1) + dp(memo, i - 2));
+        return memo.get(i);
+    }
+
     public int tribonacci(int n) {
         Map<Integer, Integer> memo = new HashMap<Integer, Integer>();
-        return dp(n, memo);
+        return tribonacci(memo, n);
     }
-    public int dp(int i, Map<Integer, Integer> memo){
+    public int tribonacci(Map<Integer, Integer> memo, int i){
         if(i == 0) return 0;
         if(i == 1) return 1;
         if(i == 2) return 1;
-        if(!memo.containsKey(i)) memo.put(i, dp(i - 1, memo) + dp(i - 2, memo) + dp(i - 3, memo));
+        if(memo.containsKey(i)) return memo.get(i);
+        memo.put(i, tribonacci(memo, i - 1) + tribonacci(memo, i - 2) + tribonacci(memo, i - 3));
         return memo.get(i);
+    }
+
+    public int climbStairs(int n) {
+        Map<Integer, Integer> memo = new HashMap<>();
+        return climbStairs(memo, n);
+    }
+    public int climbStairs(Map<Integer, Integer> memo, int i){
+        if(i == 1) return 1;
+        if(i == 2) return 2;
+        if(memo.containsKey(i)) return memo.get(i);
+        memo.put(i, climbStairs(memo, i - 1) + climbStairs(memo, i - 2));
+        return memo.get(i);
+    }
+
+    public int climbStairsII(int n) {
+        Map<String, Integer> memo = new HashMap<>();
+        return climbStairsII(memo, 0, n);
+    }
+    public int climbStairsII(Map<String, Integer> memo, int i, int n){
+        if(i > n) return 0;
+        if(i == n) return 1;
+        String currentStep = i + "," + n;
+        if(memo.containsKey(currentStep)) return memo.get(currentStep);
+        memo.put(currentStep, climbStairsII(memo, i + 1, n) + climbStairsII(memo, i + 2, n));
+        return memo.get(currentStep);
+    }
+
+    static int numDecodings(String s) {
+        Map<Integer, Integer> memo = new HashMap<>();
+        return dp(memo, s, 0);
+    }
+    static int dp(Map<Integer, Integer> memo, String s, int index){
+        if(index == s.length()) return 1; // end of string
+        if(s.charAt(index) == '0') return 0; // zero decode not possible
+        if(index == s.length() - 1) return 1; // last position and previous case is checked
+        if(memo.containsKey(index)) return memo.get(index); // Have we already seen this substring
+        int canDecodeSingleDigit = dp(memo, s, index + 1);// recursive call to decode single digit to a character
+        int twoDigits = Integer.parseInt(s.substring(index, index + 2));
+        int canDecodeTwoDigits = 0;
+        if(twoDigits <= 26)canDecodeTwoDigits = dp(memo, s,  index + 2);
+        memo.put(index, canDecodeSingleDigit + canDecodeTwoDigits);
+        return memo.get(index);
     }
 
     public int uniquePaths(int m, int n) {
@@ -95,8 +148,7 @@ public class code {
     public int uniquePaths(int m, int n, Map<String, Integer> memo) {
         String key = m + "," + n;
         if(memo.containsKey(key)) return memo.get(key);
-        if(m == 1 && n == 1) return 1;
-        if(m == 0 || n == 0) return 0;
+        if(m == 1 || n == 1) return 1;
         memo.put(key, uniquePaths(m - 1, n, memo) + uniquePaths(m, n - 1, memo) );
         return memo.get(key);
     }
@@ -113,6 +165,38 @@ public class code {
         }
         memo.put(key, uniquePathsWithObstacles(obstacleGrid, row + 1, column, memo) + uniquePathsWithObstacles(obstacleGrid, row , column + 1, memo));
         return memo.get(key);
+    }
+
+    // dfs + backtracking
+    public int uniquePathsIII(int[][] grid) {
+        // Count the 0's, starting x index, starting y index
+        int zeroCount = 0 , sRow = 0 , sCol = 0;
+        for (int row = 0; row < grid.length; row++){
+            for (int col = 0 ; col < grid[0].length; col++){
+                if (grid[row][col] == 0) zeroCount++;
+                else if (grid[row][col] == 1) {
+                    sRow = row;
+                    sCol = col;
+                }
+            }
+        }
+        return uniquePathsIII(grid, sRow, sCol, zeroCount);
+    }
+    public int uniquePathsIII(int[][] grid, int row, int col, int zeroCount){
+        boolean rowInbounds = row >= 0 && row < grid.length;
+        boolean columnInbounds = col >= 0 && col < grid[0].length;
+        if (!rowInbounds || !columnInbounds || grid[row][col] == 1) return 0;
+        if (grid[row][col] == 2) return zeroCount == -1 ? 1 : 0; // Why zero = -1, because in above example we have 9 zero's. So, when we reach the final cell we are covering one cell extra then the zero count.
+        // If that's the case we find the path and return '1' otherwise return '0';
+        grid[row][col] = -1; // mark the visited cells as -1;
+        zeroCount--; // and reduce the zero by 1
+        int totalPath = uniquePathsIII(grid, row + 1, col, zeroCount) +
+                uniquePathsIII(grid, row - 1, col, zeroCount) +
+                uniquePathsIII(grid, row, col + 1, zeroCount) +
+                uniquePathsIII(grid, row, col - 1, zeroCount);
+        grid[row][col] = 0; // Let's say if we are not able to count all the paths. Now we use Backtracking over here
+        zeroCount++;
+        return totalPath; // if we get all the paths, simply return it.
     }
 
     public int minPathSum(int[][] grid) {
