@@ -549,6 +549,37 @@ public class code {
         return memo.get(key);
     }
 
+    static int longestIncreasingPath(int[][] matrix) {
+        if (matrix.length == 0 || matrix == null) return 0;
+        int m = matrix.length, n = matrix[0].length , longestIncresingPath = 1;
+        Map<String,Integer> memo = new HashMap<>();
+        for (int row = 0; row < m; row++){
+            for (int col = 0; col < n; col++){
+                int runningLIPath = longestIncreasingPath(matrix, memo, row, col);
+                longestIncresingPath = Math.max(longestIncresingPath, runningLIPath);
+            }
+        }
+        return longestIncresingPath;
+    }
+    static int longestIncreasingPath(int[][] matrix, Map<String,Integer> memo, int row, int col) {
+        String key = row + "," + col;
+        if (memo.containsKey(key)) memo.get(key);
+        int longestIncreasingPath = 1;
+        int[][] deltas = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
+        for (int[] delta : deltas){
+            int neighborRow = row + delta[0];
+            int neighborCol = col + delta[1];
+            boolean rowInbounds = neighborRow >= 0 && neighborRow < matrix.length;
+            boolean colInbounds = neighborCol >= 0 && neighborCol < matrix[0].length;
+            if (rowInbounds && colInbounds && matrix[neighborRow][neighborCol] > matrix[row][col]){
+                int longest = 1 + longestIncreasingPath(matrix, memo, neighborRow, neighborCol);
+                if (longest > longestIncreasingPath) longestIncreasingPath = longest;
+            }
+        }
+        memo.put(key, longestIncreasingPath);
+        return memo.get(key);
+    }
+
     public static void main(String[] args){
         String target = "purple";
         String[] wordBank = { "purp", "p", "ur", "le", "purpl"};
