@@ -84,6 +84,25 @@ public class code {
         return memo.get(key);
     }
 
+    static int lengthOfLongestIncreaseSubsequence(int[] nums) {
+        Map<String, Integer> memo = new HashMap<>();
+        int previous = Integer.MIN_VALUE;
+        return lengthOfLongestIncreaseSubsequence(nums, memo, 0, previous);
+    }
+    static int lengthOfLongestIncreaseSubsequence(int[] nums, Map<String, Integer> memo, int index, int previous) {
+        String key = index + "," + previous;
+        if (memo.containsKey(key)) return memo.get(key);
+        if (index == nums.length) return 0;
+        int current = nums[index];
+        int skipCurrent = lengthOfLongestIncreaseSubsequence(nums, memo, index + 1, previous);
+        int takeCurrent = 0;
+        if (current > previous) {
+            takeCurrent = 1 + lengthOfLongestIncreaseSubsequence(nums, memo, index + 1, current);
+        }
+        memo.put(key, Math.max(takeCurrent, skipCurrent));
+        return memo.get(key);
+    }
+
 
     int rob(int[] nums) {
         Map<Integer, Integer> memo = new HashMap<>();
