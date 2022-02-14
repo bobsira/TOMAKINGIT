@@ -34,6 +34,24 @@ public class code {
         }
         return dp[0][0];
     }
+    int longestCommonSubsequenceI(String str1, String str2) {
+        Map<String, Integer> memo = new HashMap<>();
+        return longestCommonSubsequenceI(memo, str1, str2, 0, 0);
+    }
+    int longestCommonSubsequenceI(Map<String, Integer> memo,String str1, String str2, int i, int j) {
+        String key = i + "," + j;
+        if (memo.containsKey(key)) return memo.get(key);
+        if (i == str1.length() || j == str2.length()) return 0; // check for empty for either str1 or str2
+        if (str1.charAt(i) == str2.charAt(j)) {
+            memo.put(key, 1 + longestCommonSubsequenceI(memo, str1, str2, i + 1, j + 1)) ;
+        } else {
+            memo.put(key, Math.max(
+                    longestCommonSubsequenceI(memo, str1, str2, i + 1, j ),
+                    longestCommonSubsequenceI(memo, str1, str2, i , j + 1)
+            )) ;
+        }
+        return memo.get(key);
+    }
      int longestPalindromeSubsequence(String s) {
         int[][] dp = new int[s.length() + 1][s.length() + 1];
         String t = new StringBuilder(s).reverse().toString();
@@ -45,6 +63,25 @@ public class code {
             }
         }
         return dp[0][0];
+    }
+    int longestPalindromeSubsequenceI(String s) {
+        Map<String, Integer> memo = new HashMap<>();
+        return longestPalindromeSubsequenceI(s, memo, 0, s.length() - 1);
+    }
+    int longestPalindromeSubsequenceI(String s, Map<String, Integer> memo, int startIndex, int endIndex) {
+        String key = startIndex + "," + endIndex;
+        if (memo.containsKey(key)) return memo.get(key);
+        if (startIndex == endIndex) return 1; // every single character is a palindrome
+        if (startIndex > endIndex) return 0; // represent empty string; pointers cross
+        if (s.charAt(startIndex) == s.charAt(endIndex)) {
+            memo.put(key, 2 + longestPalindromeSubsequenceI(s, memo, startIndex + 1, endIndex - 1)) ; // matched two characters
+        } else { // remove the first character or remove the last character
+            memo.put(key, Math.max(
+                            longestPalindromeSubsequenceI(s, memo, startIndex + 1, endIndex),
+                            longestPalindromeSubsequenceI(s, memo, startIndex, endIndex - 1)
+                    )) ;
+        }
+        return memo.get(key);
     }
 
 
@@ -274,11 +311,29 @@ public class code {
         int minimumSquares = Integer.MAX_VALUE;
         for (int i = 1; i <= Math.sqrt(n); i++){
             int square = i * i;
-            int numSquares = summingSquares(n - square, memo);
-            minimumSquares = Math.min(minimumSquares, numSquares);
+            int numSquare = summingSquares(n - square, memo);
+            if(minimumSquares > numSquare) minimumSquares = numSquare + 1;
         }
         memo.put(n, minimumSquares);
         return memo.get(n);
+    }
+
+    static boolean arrayStepper(int[] nums){
+        Map<Integer, Boolean> memo = new HashMap<>();
+        return arrayStepper(nums,memo, 0);
+    }
+    static boolean arrayStepper(int[] nums, Map<Integer, Boolean> memo, int currentIndex){
+        if (memo.containsKey(currentIndex)) return memo.get(currentIndex);
+        if (currentIndex >= nums.length - 1) return true;
+        int maxStep = nums[currentIndex];
+        for (int i = 1; i <= maxStep; i++){
+            if (arrayStepper(nums, memo, currentIndex + i)) {
+                memo.put(currentIndex, true);
+                return true;
+            }
+        }
+        memo.put(currentIndex, false);
+        return memo.get(currentIndex);
     }
 
     static List<Integer> howSum(int targetSum, int[] numbers){
