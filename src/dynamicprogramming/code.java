@@ -439,6 +439,26 @@ public class code {
         return memo.get(currentIndex);
     }
 
+    static int quickestConcat(String s, String[] wordBank){
+        Map<String,Integer> memo = new HashMap<>();
+        int quick = quickestConcat(s, wordBank, memo);
+        if (quick == Integer.MAX_VALUE) return -1;
+        else return quick;
+    }
+    static int quickestConcat(String s, String[] wordBank, Map<String,Integer> memo){
+        if (memo.containsKey(s)) return memo.get(s);
+        if (s.isEmpty()) return 0;
+        int minimumWords = Integer.MAX_VALUE;
+        for (String word : wordBank){
+            String suffix = s.substring(word.length());
+            int attempt = 1 + quickestConcat(s, wordBank, memo);
+            minimumWords = Math.min(attempt, minimumWords);
+        }
+        memo.put(s, minimumWords);
+        return memo.get(s);
+    }
+
+
     static int numberOfWaysConstruct(String target, String[] wordBank){
         Map<String, Integer> memo = new HashMap<>();
         return numberOfWaysConstruct(target, wordBank, memo);
@@ -580,29 +600,46 @@ public class code {
         return memo.get(key);
     }
 
-    public static void main(String[] args){
-        String target = "purple";
-        String[] wordBank = { "purp", "p", "ur", "le", "purpl"};
-        System.out.println(numberOfWaysConstruct(target, wordBank));
-//        String target = "abcdef";
-//        String[] wordBank = { "ab", "abc", "cd", "def", "abcd"};
-//        System.out.println(canConstruct(target, wordBank));
-//        int targetSum = 8;
-//        int[] numbers = { 1, 4, 5};
-//        System.out.println(canSum(targetSum, numbers));
-//
-//        System.out.println();
-//
-//        List<Integer> output = howSum(targetSum, numbers);
-//        if (output != null ) for (Integer integer : output) System.out.print( integer + " ");
-//        else System.out.println(output);
-//
-//        System.out.println();
-//
-//        List<Integer> output1 = bestSum(targetSum, numbers);
-//        if (output1 != null ) for (Integer integer : output1) System.out.print( integer + " ");
-//        else System.out.println(output1);
+    static int breakingBoundaries(int m, int n, int k, int r, int c){
+        Map<String, Integer> memo = new HashMap<>();
+        return breakingBoundaries(m, n, k, r, c, memo);
+    }
+    static int breakingBoundaries(int m, int n, int k, int r, int c, Map<String, Integer> memo){
+        String key = k + "," + r + "," + c;
+        if (memo.containsKey(key)) memo.get(key);
+        boolean rowInbounds = r >= 0 && r < m;
+        boolean colInbounds = c >= 0 && c < n;
+        if (!rowInbounds || !colInbounds) return 1;
+        if (k == 0) return 0;
+        int totalCount = 0;
+        int[][] deltas = {{1,0}, {-1,0}, {0,1}, {0, -1}};
+        for (int[] delta : deltas){
+            int dRow = delta[0] + r;
+            int dCol = delta[1] + c;
+            totalCount += breakingBoundaries(m, n, k - 1, dRow, dCol, memo);
+        }
+        memo.put(key, totalCount);
+        return memo.get(key);
     }
 
+    static int positioningPlants(int[][] costs){
+        Map<String, Integer> memo = new HashMap<>();
+        int lastPlant = -1;
+        return positioningPlants(costs, 0, lastPlant, memo);
+    }
+    static int positioningPlants(int[][] costs, int position, int lastPlant, Map<String, Integer> memo){
+        String key = position + "," + lastPlant;
+        if (memo.containsKey(key)) return memo.get(key);
+        if (position == costs.length) return 0;
+        int min = Integer.MAX_VALUE;
+        for (int plant = 0; plant < costs[position].length; plant++){
+            if (plant != lastPlant){
+                int attempt = costs[position][plant] + positioningPlants(costs, position + 1, plant, memo);
+                min = Math.min(min, attempt);
+            }
+        }
+        memo.put(key, min);
+        return memo.get(key);
+    }
 
 }
