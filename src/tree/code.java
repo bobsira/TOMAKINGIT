@@ -286,4 +286,32 @@ public class code {
         return results;
     }
 
+    static List<Integer> leftyNodes(TreeNode root) {
+        List<Integer> results = new ArrayList<>();
+        if(root == null) return results;
+        Queue<TreeNode> q = new LinkedList<>();
+        q.add(root);
+        while(!q.isEmpty()){
+            int size = q.size();
+            for(int i = 0; i < size; i++) {
+                TreeNode current = q.poll();
+                if (i == 0) { //  left most node
+                    results.add(current.val);
+                }
+                if(current.left != null) q.add(current.left);
+                if(current.right != null) q.add(current.right);
+
+            }
+        }
+        return results;
+    }
+
+    static TreeNode flipTree(TreeNode root){
+        if (root == null) return null;
+        TreeNode left = flipTree(root.left);
+        TreeNode right = flipTree(root.right);
+        root.left = right;
+        root.right = left;
+        return root;
+    }
 }
