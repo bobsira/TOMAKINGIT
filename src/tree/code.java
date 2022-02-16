@@ -3,7 +3,7 @@ package tree;
 import java.util.*;
 
 public class code {
-    public class TreeNode {
+    static class TreeNode {
           int val;
           TreeNode left;
           TreeNode right;
@@ -312,6 +312,82 @@ public class code {
         TreeNode right = flipTree(root.right);
         root.left = right;
         root.right = left;
+        return root;
+    }
+
+    static boolean binarySearchTreeIncludes(TreeNode root, int target){
+        if (root == null) return false;
+        if (root.val == target) return true;
+        if (target < root.val) return binarySearchTreeIncludes(root.left, target);
+        else return binarySearchTreeIncludes(root.right, target);
+    }
+
+    static boolean isBinarySearchTree(TreeNode root){
+        List<Integer> values = new ArrayList<>();
+        inOrderTraversal(root, values);
+        return isSorted(values);
+    }
+    static void inOrderTraversal(TreeNode root, List<Integer> values){
+        if (root == null) return;
+        inOrderTraversal(root.left, values);
+        values.add(root.val);
+        inOrderTraversal(root.right, values);
+    }
+    static boolean isSorted(List<Integer> values){
+        for (int i = 1; i < values.size(); i++){
+            int current = values.get(i);
+            int previous = values.get(i - 1);
+            if (current < previous) return false;
+        }
+        return true;
+    }
+
+    static void postOrderTraversal(TreeNode root, List<Integer> values){
+        if (root == null) return;
+        postOrderTraversal(root.left, values);
+        postOrderTraversal(root.right, values);
+        values.add(root.val);
+    }
+
+    static TreeNode buildTreeInPost(int[] inorder, int[] postorder){
+        if (inorder.length == 0 || postorder.length == 0) return null;
+        TreeNode root = new TreeNode(postorder[postorder.length - 1]);
+
+        int midIndex = 0;
+        for (int val : inorder){
+            if (val == root.val) break;
+            midIndex++;
+        }
+
+        int[] leftInOrder = Arrays.copyOfRange(inorder, 0 , midIndex);
+        int[] rightInOrder = Arrays.copyOfRange(inorder, midIndex + 1, inorder.length);
+        int[] leftPostOrder = Arrays.copyOfRange(postorder, 0, leftInOrder.length);
+        int[] rightPostOrder = Arrays.copyOfRange(postorder, leftInOrder.length, postorder.length - 1);
+
+        root.left = buildTreeInPost(leftInOrder, leftPostOrder);
+        root.right = buildTreeInPost(rightInOrder, rightPostOrder);
+
+        return root;
+    }
+
+    static TreeNode buildTreeInPre(int[] inorder, int[] preorder){
+        if (inorder.length == 0 || preorder.length == 0) return null;
+        TreeNode root = new TreeNode(preorder[0]);
+
+        int midIndex = 0;
+        for (int val : inorder){
+            if (val == root.val) break;
+            midIndex++;
+        }
+
+        int[] leftInOrder = Arrays.copyOfRange(inorder, 0 , midIndex);
+        int[] rightInOrder = Arrays.copyOfRange(inorder, midIndex + 1, inorder.length);
+        int[] leftPreOrder = Arrays.copyOfRange(preorder, 1, leftInOrder.length + 1);
+        int[] rightPreOrder = Arrays.copyOfRange(preorder, leftInOrder.length + 1, preorder.length );
+
+        root.left = buildTreeInPost(leftInOrder, leftPreOrder);
+        root.right = buildTreeInPost(rightInOrder, rightPreOrder);
+
         return root;
     }
 }
