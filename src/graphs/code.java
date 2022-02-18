@@ -573,6 +573,24 @@ public class code {
         return result;
     }
 
+    static boolean canColor(Map<String, List<String>> graph){
+        Map<String, Boolean> coloring = new HashMap<>();
+        for (String node : graph.keySet()){
+            if ( !(coloring.containsKey(node)) &&validate(graph, node, coloring, false) == false)
+                return false;
+        }
+        return true;
+    }
+    static boolean validate(Map<String, List<String>> graph, String node, Map<String, Boolean> coloring, boolean currentColor){
+        if (coloring.containsKey(node)) return coloring.get(node) == currentColor;
+        coloring.put(node, currentColor);
+        for (String neighbor : graph.get(node)){
+            if (validate(graph, neighbor, coloring, !currentColor) == false)
+                return false;
+        }
+        return true;
+    }
+
     public static void main(String[] args) {
 // example graph using adjacency list
 // graph = {
