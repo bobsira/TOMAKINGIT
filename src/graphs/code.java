@@ -591,6 +591,36 @@ public class code {
         return true;
     }
 
+    static boolean tolerantTeams(String[][] rivalries) {
+        Map<String, List<String>> graph = buidGraph(rivalries);
+        Map<String, Boolean> coloring = new HashMap<>(); // also used to track visited
+        for (String node : graph.keySet()){
+            if (!(coloring.containsKey(node)) && !isBipartite(graph, node, coloring, false)) return false;
+        }
+        return true;
+    }
+    static Map<String, List<String>> buidGraph(String[][] edges) {
+        Map<String, List<String>> graph = new HashMap<>();
+        for(String[] edge : edges){
+            String source = edge[0];
+            String destination = edge[1];
+            if (!graph.containsKey(source)) graph.put(source, new ArrayList<>());
+            if (!graph.containsKey(destination)) graph.put(destination, new ArrayList<>());
+            graph.get(source).add(destination);
+            graph.get(destination).add(source);
+        }
+        return graph;
+    }
+    static boolean isBipartite(Map<String, List<String>> graph, String node, Map<String, Boolean> coloring, boolean currentColor){
+        if (coloring.containsKey(node)) return coloring.get(node) == currentColor;
+        coloring.put(node, currentColor);
+        for (String neighbor : graph.get(node)){
+            if(!isBipartite(graph, neighbor, coloring, !currentColor)) return false;
+        }
+        return true;
+    }
+
+
     public static void main(String[] args) {
 // example graph using adjacency list
 // graph = {
