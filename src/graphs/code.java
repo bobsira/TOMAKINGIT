@@ -620,6 +620,34 @@ public class code {
         return true;
     }
 
+    static boolean rareRouting(int n, int[][] roads){
+        Map<Integer, List<Integer>> graph = makeGraph(n, roads);
+        Set<Integer> visited = new HashSet<>();
+        boolean valid = validate(graph, 0, -1, visited);
+        return valid && visited.size() == n;
+    }
+    static boolean validate(Map<Integer, List<Integer>> graph, int node, int previous, Set<Integer> visited){
+        if (visited.contains(node)) return false;
+        visited.add(node);
+        for (int neighbor : graph.get(node)){
+            if (neighbor != previous && validate(graph, neighbor, node, visited) == false) return false;
+        }
+        return true;
+    }
+    static Map<Integer, List<Integer>> makeGraph(int n, int[][] roads) {
+        Map<Integer, List<Integer>> graph = new HashMap<>();
+        for (int city = 0; city < n; city++) {
+            graph.put(city, new ArrayList<>());
+        }
+        for(int[] edge : roads){
+            int source = edge[0];
+            int destination = edge[1];
+            graph.get(source).add(destination);
+            graph.get(destination).add(source);
+        }
+        return graph;
+    }
+
 
     public static void main(String[] args) {
 // example graph using adjacency list
