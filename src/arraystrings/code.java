@@ -1,6 +1,8 @@
 package arraystrings;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class code {
 
@@ -60,5 +62,34 @@ public class code {
             if (seats[i] == 0) answer = Math.max(answer, Math.min(left[i], right[i]));
         }
         return answer;
+    }
+
+    static String findReplaceString(String s, int[] indices, String[] sources, String[] targets){
+        if (s.length() == 0 || indices.length == 0) return s;
+        StringBuilder result = new StringBuilder();
+
+        // 1. create an index map  of indices in index.
+        Map<Integer, Integer> indicesPositionMap = new HashMap<>();
+        for (int i = 0; i < indices.length; i++)
+            indicesPositionMap.put(indices[i], i);
+        // 2. sort the indices array so we can process from left to right
+        Arrays.sort(indices);
+
+        int current = 0;
+        for (int index : indices) {
+            int indexPosition = indicesPositionMap.get(index);
+            int subStringLength = index + sources[indexPosition].length();
+            // Check validity of each substring from source with original string
+            if (!s.substring(index, subStringLength).equals(sources[indexPosition])) continue;
+            // append substring from last process till current index
+            result.append(s.substring(current, index));
+            // append current string
+            result.append(targets[indexPosition]);
+            current = subStringLength;
+        }
+
+        // 6. Finally, append the residual string
+        result.append(s.substring(current));
+        return result.toString();
     }
 }
