@@ -1,8 +1,6 @@
 package arraystrings;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class code {
 
@@ -91,5 +89,35 @@ public class code {
         // 6. Finally, append the residual string
         result.append(s.substring(current));
         return result.toString();
+    }
+
+    static List<Integer> findDisappearedNumbers(int[] nums) {
+        List<Integer> results = new ArrayList<>();
+        for (int i = 0; i < nums.length; i++){
+            int indexToNegate = Math.abs(nums[i]) - 1;
+            if (nums[indexToNegate] > 0) nums[indexToNegate] = nums[indexToNegate] * -1;
+        }
+
+        for (int i = 1; i <=nums.length; i++){
+            if (nums[i - 1] > 0) results.add(i);
+        }
+        return results;
+    }
+
+    static List<Integer> findDuplicates(int[] nums) {
+        List<Integer> results = new ArrayList<>();
+        for (int num:  nums) {
+            int indexToNegate = Math.abs(num) - 1;
+            nums[indexToNegate] = nums[indexToNegate] * -1;
+        }
+
+        for (int num: nums){
+            int indexToCheck = Math.abs(num) - 1;
+            if (nums[indexToCheck] > 0) {
+                results.add(Math.abs(num));
+                nums[indexToCheck] = nums[indexToCheck] * -1;
+            }
+        }
+        return results;
     }
 }
