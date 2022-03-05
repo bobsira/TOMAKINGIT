@@ -62,4 +62,89 @@ public class code {
         }
         return result;
     }
+
+    static List<List<Integer>> threeSum(int[] nums){
+        Arrays.sort(nums);
+        List<List<Integer>> results = new ArrayList<>();
+        for (int i = 0; i < nums.length - 2; i++){
+            if (i == 0 || nums[i] != nums[i - 1]){
+                int remainder = -nums[i];
+                int start = i + 1;
+                int end = nums.length - 1;
+                while (start < end){
+                    if (nums[start] + nums[end] == remainder) {
+                        results.add(new ArrayList<>(Arrays.asList(nums[i], nums[start], nums[end])));
+                        while (start < end && nums[start] == nums[start + 1]) start++;
+                        while (start < end && nums[end] == nums[end - 1]) end--;
+                        start++;
+                        end--;
+                    } else if (nums[start] + nums[end] > remainder) end--;
+                    else start++;
+                }
+            }
+        }
+        return results;
+    }
+    static int threeSumClosest(int[] nums, int target) {
+        Arrays.sort(nums);
+        int result = nums[0] + nums[1] + nums[nums.length - 1];
+        for (int i = 0; i < nums.length - 2; i++){
+            int start = i + 1;
+            int end = nums.length - 1;
+            while (start < end) {
+                int sum = nums[i] + nums[start] + nums[end];
+                if (sum > target) end--;
+                else start++;
+                if (Math.abs(sum - target) < Math.abs(result - target)) result = sum;
+            }
+        }
+        return result;
+    }
+    static int threeSumSmaller(int[] nums, int target) {
+        Arrays.sort(nums);
+        int count = 0;
+
+        for (int i = 0; i < nums.length - 2; i++){
+            int start = i + 1;
+            int end = nums.length - 1;
+            while (start < end){
+                int sum = nums[i] + nums[start] + nums[end];
+                if (sum < target){
+                    count += end - start;
+                    start++;
+                } else end--;
+            }
+        }
+        return count;
+    }
+    static List<List<Integer>> fourSum(int[] nums, int target) {
+        Arrays.sort(nums);
+        return kSum(nums, target, 0, 4);
+    }
+    static List<List<Integer>> kSum(int[] nums, int target, int index, int k){
+        List<List<Integer>> result = new ArrayList<>();
+        if (k == 2) {
+            int start = index;
+            int end = nums.length - 1;
+            while (start < end){
+                int sum  = nums[index] + nums[start] + nums[end];
+                if (sum == target){
+                    result.add(new ArrayList<>(Arrays.asList(nums[start], nums[end])));
+                    while (start < end && nums[start] == nums[start + 1]) start++;
+                    while (start < end && nums[end] == nums[end - 1]) end--;
+                    start++;
+                    end--;
+                } else if (sum > target) end--;
+                else start++;
+            }
+        } else {
+            for (int i = index; i < nums.length; i++){
+                if (i > index && nums[i] == nums[i + 1]) continue;
+                List<List<Integer>>passedUpList = kSum(nums, target, i + 1, k - 1);
+                for (List<Integer> subList : passedUpList) subList.add(0, nums[i]);
+                result.addAll(passedUpList);
+            }
+        }
+        return result;
+    }
 }
