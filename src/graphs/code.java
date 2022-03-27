@@ -133,6 +133,54 @@ public class code {
         }
         return -1;
     }
+    // We use a boolean array visited[] to represent the set of vertices included in the Shortest Tree Path.
+    // If a value visited[v] is true, then vertex v is included in the Shortest Tree Path, otherwise not.
+    // Array distance[] is used to store the shortest distance values of all vertices.
+    static final int V = 9;
+    // A utility function to find the vertex with minimum distance value,
+    // from the set of vertices not yet included in the shortest path tree
+    static int minDistance(int[] distance, boolean[] visited){
+        int minimum = Integer.MAX_VALUE;
+        int minimumIndex = -1;
+        for (int v = 0; v < V; v++){
+            if(!visited[v] && distance[v] <= minimum){
+                minimum = distance[v];
+                minimumIndex = v;
+            }
+        }
+        return minimumIndex;
+    }
+    static void dijkstra(int[][] graph, int source){
+        // the output array distance[i] will hold the shortest distance from source to i
+        int[] distance = new int[V];
+        // visited[i] will true if vertex i is included in the shortest path tree or shortest distance from source to i is finalized
+        boolean[] visited = new boolean[V];
+        // initialize all distance as INFINITE and visited[] as false
+        for (int i = 0; i < V; i++){
+            distance[i] = Integer.MAX_VALUE;
+            visited[i] = false;
+        }
+        // distance of source vertex from itself is always 0
+        distance[source] = 0;
+        // find the shortest path for all vertices
+        for (int count = 0; count < V - 1; count++){
+            // pick the minimum distance vertex from the set of vertices not yet processed.
+            // u is always equal to source in first iteration
+            int u = minDistance(distance, visited);
+            // mark the picked vertex as processed
+            visited[u] = true;
+            // update distance value of the adjacent vertices of the picked vertex
+            for (int v = 0; v < V; v++){
+                // update distance[v] only if :
+                // it is not in the shortest path tree set
+                // there is an edge from u to v
+                // and total weight of path from source to v through u is smaller than current value of dist[v]
+                if (!visited[v] && graph[u][v] != 0 && distance[u] != Integer.MAX_VALUE && distance[u] + graph[u][v] < distance[v])
+                    distance[v] = distance[u] + graph[u][v];
+            }
+        }
+    }
+
     static int islandCount(int[][] grid){
         Set<String> visited = new HashSet<>();
         int count = 0;
