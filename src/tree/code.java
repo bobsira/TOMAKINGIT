@@ -169,6 +169,20 @@ public class code {
         formedNumber.deleteCharAt(formedNumber.length() - 1);
     }
 
+    static int maximumPathSum;
+    static int maxPathSum(TreeNode root) {
+        maximumPathSum = Integer.MIN_VALUE;
+        maxPathDown(root);
+        return maximumPathSum;
+    }
+    static int maxPathDown(TreeNode root) {
+        if (root == null) return 0;
+        int leftPath = Math.max(0, maxPathDown(root.left));
+        int rightPath = Math.max(0, maxPathDown(root.right));
+        maximumPathSum = Math.max(maximumPathSum, leftPath + rightPath + root.val);
+        return Math.max(leftPath, rightPath) + root.val;
+    }
+
     static boolean flipEquiv(TreeNode root1, TreeNode root2) {
          if (root1 == null && root2 == null) return true;
          if (root1 == null || root2 == null || root1.val != root2.val) return false;
@@ -390,4 +404,51 @@ public class code {
 
         return root;
     }
-}
+
+    static TreeNode sortedArrayToBST(int[] num) {
+        if (num.length == 0) return null;
+        TreeNode root = sortedArrayToBST(num, 0, num.length - 1);
+        return root;
+    }
+    static TreeNode sortedArrayToBST(int[] num, int start, int end) {
+        if (start > end) return null;
+        int mid = start + (end - start) / 2;
+        TreeNode root = new TreeNode(num[mid]);
+        root.left = sortedArrayToBST(num, start, end - 1);
+        root.right = sortedArrayToBST(num, start + 1, end);
+        return root;
+    }
+    static TreeNode balanceBST(TreeNode root) {
+        // inOrderTraversal(root);
+        //return sortedArrayToBST(nums);
+        return null;
+    }
+
+    // The height or depth of a binary tree is the total number of edges or nodes on the longest path from the root node to the leaf node.
+     static int height(TreeNode root) {
+        // The height of a subtree rooted at any node will be one more than the maximum height of its left and right subtree.
+         if(root == null) return 0;
+         int left = height(root.left) + 1;
+         int right = height(root.right) + 1;
+         return Math.max(left, right);
+     }
+    static int heightIterative(TreeNode root) {
+        // Then the height of a tree is equal to the total number of levels in it.
+        if (root == null) return 0;
+        int depth = 0;
+        Queue<TreeNode> queue = new LinkedList<>();
+        queue.add(root);
+        while (!queue.isEmpty()){
+            int size = queue.size();
+            for (int i = 0; i < size; i++){
+                TreeNode current = queue.poll();
+                if (current.left != null) queue.add(current.left);
+                if (current.right != null) queue.add(current.right);
+            }
+            depth++;
+        }
+        return depth;
+    }
+
+
+    }
