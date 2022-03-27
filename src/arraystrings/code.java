@@ -151,4 +151,41 @@ public class code {
         }
         return row;
     }
+
+    static boolean isOverLapping(Rectangle first, Rectangle second){
+        if (first.topLeft.x > second.bottomRight.x
+                || first.bottomRight.x < second.topLeft.x
+                || first.topLeft.y < second.bottomRight.y
+                || first.bottomRight.y > second.topLeft.y
+        ) return false;
+        return true;
+    }
+
+    static void generateSquare(int n){
+        // https://www.youtube.com/watch?v=GYBr8n-_Rq4&ab_channel=VivekanandKhyade-AlgorithmEveryDay
+        int[][] magicSquare = new int[n][n];
+        // initialize position for 1
+        int i = n / 2; int j = n - 1;
+        // one by one put all values in magic square
+        for (int num = 1; num <= n * n;){
+            // 3rd condition
+            if (i == - 1 && j == n){
+                i = 0; j = n - 2;
+            } else {
+                // 1st condition helper if next number goes to out of (square's left side)
+                if (i < 0) i = n - 1;
+                // 1st condition helper if next number goes to out of (square's right side)
+                if (j == n) j = 0;
+            }
+            // 2nd condition
+            if (magicSquare[i][j] != 0){
+                i++; j -= 2;
+            } else {
+                // set number
+                magicSquare[i][j] = num++;
+                // 1st condition
+                i--; j++;
+            }
+        }
+    }
 }
