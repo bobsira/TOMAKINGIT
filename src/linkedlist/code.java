@@ -271,6 +271,48 @@ public class code {
          return head1;
     }
 
+
+    public void mergeTwoListsAlternativePositions(ListNode list1, ListNode list2){
+        // https://www.youtube.com/watch?v=EPxaQgnxLfE&ab_channel=CodingSimplified
+
+         ListNode list1Next;
+         ListNode list2Next;
+
+         ListNode first = list1;
+         ListNode second = list2;
+
+         while (list1 != null && list2 != null){
+             list1Next = list1.next;
+             list1.next = list2;
+             list1 = list1Next;
+
+             list2Next = list2.next;
+             list2.next = list1Next;
+             list2 = list2Next;
+         }
+
+         second = list2;
+
+//         ListNode pCurrl1 = list1;
+//         ListNode pNextl1 = null;
+//         ListNode pCurrl2 = list2;
+//         ListNode pNextl2 = null;
+//         // while there are available positions in list1
+//        while (pCurrl1 != null && pCurrl2 != null){
+//            // save next pointers
+//            pNextl1 = pCurrl1.next;
+//            pNextl2 = pCurrl2.next;
+//            //
+//            pCurrl2.next = pCurrl1; // change next pointer of l2 current
+//            pCurrl1.next = pCurrl2; // change next pointer of l1 current
+//
+//            // update current pointers for next iteration
+//            pCurrl1 = pNextl1;
+//            pCurrl2 = pNextl2;
+//        }
+//        list2 = pCurrl2;
+    }
+
     public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
         ListNode sentinel = new ListNode(0);
         ListNode tail = sentinel;
