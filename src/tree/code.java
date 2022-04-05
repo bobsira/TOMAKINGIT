@@ -425,12 +425,16 @@ public class code {
     }
 
     // The height or depth of a binary tree is the total number of edges or nodes on the longest path from the root node to the leaf node.
-     static int height(TreeNode root) {
+    static int height(TreeNode root) {
         // The height of a subtree rooted at any node will be one more than the maximum height of its left and right subtree.
          if(root == null) return 0;
          int left = height(root.left) + 1;
          int right = height(root.right) + 1;
          return Math.max(left, right);
+
+        // Recursively obtain the height of a tree. An empty tree has -1 height
+        // if(root == null) return -1;
+        // return 1 + Math.max(height(root.left), height(root.right));
      }
     static int heightIterative(TreeNode root) {
         // Then the height of a tree is equal to the total number of levels in it.
@@ -450,5 +454,166 @@ public class code {
         return depth;
     }
 
+    static boolean isBalanced(TreeNode root) {
+        // An empty tree satisfies the definition of a balanced tree
+        if(root == null) return true;
+        // Check if subtrees have height within 1. If they do, check if thesubtrees are balanced
+        return Math.abs(height(root.left) - height(root.right)) < 2 && isBalanced(root.left) && isBalanced(root.right);
+    }
+
+    static boolean isValidBST(TreeNode root) {
+        if(root == null) return true;
+        return isValidBST(root, null, null);
+    }
+    static boolean isValidBST(TreeNode root, Integer min, Integer max){
+        if(root == null) return true;
+        if(( min != null && root.val <= min  ) || (max != null && root.val >= max)) return false;
+        return isValidBST(root.left, min, root.val) && isValidBST(root.right, root.val, max);
+    }
+
+    static TreeNode inorderSuccessor(TreeNode root, TreeNode p) {
+        // The successor of a node p is the node with the smallest key greater than p.val.
+        TreeNode successor = null;
+        while(root != null){
+            if(p.val >= root.val) root = root.right;
+            else {
+                successor = root;
+                root = root.left;
+            }
+        }
+        return successor;
+    }
+
+    // Lowest Common Ancestor of a Binary Search Tree
+    // static TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+    //     if(p.val < root.val && q.val < root.val) return lowestCommonAncestor(root.left, p, q);
+    //     if(p.val > root.val && q.val > root.val) return lowestCommonAncestor(root.right, p, q);
+    //     return root;
+    // Start traversing the tree from the root node.
+// If both the nodes p and q are in the right subtree, then continue the search with right subtree starting step 1.
+// If both the nodes p and q are in the left subtree, then continue the search with left subtree starting step 1.
+// If both step 2 and step 3 are not true, this means we have found the node which is common to node p's and q's subtrees.
+// and hence we return this common node as the LCA.
+    // }
+    static TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        while(root != null) {
+            if(p.val < root.val && q.val < root.val) root = root.left;
+            else if(p.val > root.val && q.val > root.val) root = root.right;
+            else return root;
+        }
+        return null;
+    }
+
+    // Lowest Common Ancestor of a Binary Tree
+    //     public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+//         if(root == null) return null;
+//         if(root.val == p.val || root.val == q.val) return root;
+//         TreeNode leftSearch = lowestCommonAncestor(root.left, p , q);
+//         TreeNode rightSearch = lowestCommonAncestor(root.right, p, q);
+
+//         if(leftSearch == null) return rightSearch;
+//         if(rightSearch == null) return leftSearch;
+
+//         return root;
+    //The key is that we want to root ourselves at a node and then search left and then right for either of the 2 nodes given.
+//If we see either node, we will return it, if we do not find the node in a subtree search the value of null will be returned and bubbled up.
+//After we search both left and right we ask ourselves what our results mean.
+//If we found nothing to the left, we just bubble up what is on the right (whatever that search result may be). This node we sit at cannot be the LCA since the left and right did not yield the 2 nodes we want.
+//If we found nothing to the right, we just bubble up what is on the left (whatever that search result may be). This node we sit at cannot be the LCA since the left and right did not yield the 2 nodes we want.
+//If both the right and left result are not null, we have found our LCA.
+    // https://www.youtube.com/watch?v=py3R23aAPCA&ab_channel=BackToBackSWE
+//     }
+
+    // static TreeNode searchBST(TreeNode root, int val) {
+    //     if(root == null || val == root.val) return root;
+    //     if(val > root.val) return searchBST(root.right, val);
+    //     if(val < root.val ) return searchBST(root.left, val);
+    //     return root;
+    // }
+
+    static TreeNode searchBST(TreeNode root, int val) {
+        while(root != null && root.val != val){
+            root = root.val < val ? root.right : root.left ;
+        }
+        return root;
+    }
+
+    static TreeNode insertIntoBST(TreeNode root, int val) {
+        if(root == null) {
+            TreeNode node = new TreeNode(val);
+            return node;
+        }
+        if(root.val > val) root.left = insertIntoBST(root.left, val);
+        if(root.val < val) root.right = insertIntoBST(root.right, val);
+        return root;
+    }
+
+    static TreeNode deleteNode(TreeNode root, int key) {
+        if(root == null) return null;
+        if(key < root.val) {
+            root.left = deleteNode(root.left, key);
+            return root;
+        } else if(key > root.val) {
+            root.right = deleteNode(root.right, key);
+            return root;
+        } else {
+            if(root.left == null) return root.right;
+            else if(root.right == null) return root.left;
+            else {
+                root.val = minimum(root.right);
+                root.right = deleteNode(root.right, root.val);
+                return root;
+            }
+        }
+    }
+    static int minimum(TreeNode node){
+        while(node.left != null) node = node.left;
+        return node.val;
+    }
+
+    /**
+     * findSuccessor - Helper function for finding successor
+     * In BST, successor of root is the leftmost child in root's right subtree
+     */
+//    private TreeNode findSuccessor(TreeNode root) {
+//        TreeNode cur = root.right;
+//        while (cur != null && cur.left != null) {
+//            cur = cur.left;
+//        }
+//        return cur;
+//    }
+//    public TreeNode deleteNode(TreeNode root, int key) {
+//        // return null if root is null
+//        if (root == null) {
+//            return root;
+//        }
+//
+//        // delete current node if root is the target node
+//        if (root.val == key) {
+//            // replace root with root->right if root->left is null
+//            if (root.left == null) {
+//                return root.right;
+//            }
+//
+//            // replace root with root->left if root->right is null
+//            if (root.right == null) {
+//                return root.left;
+//            }
+//
+//            // replace root with its successor if root has two children
+//            TreeNode p = findSuccessor(root);
+//            root.val = p.val;
+//            root.right = deleteNode(root.right, p.val);
+//            return root;
+//        }
+//        if (root.val < key) {
+//            // find target in right subtree if root->val < key
+//            root.right = deleteNode(root.right, key);
+//        } else {
+//            // find target in left subtree if root->val > key
+//            root.left = deleteNode(root.left, key);
+//        }
+//        return root;
+//    }
 
     }
